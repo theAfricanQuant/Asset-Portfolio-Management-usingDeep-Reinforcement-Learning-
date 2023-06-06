@@ -33,7 +33,7 @@ from stable_baselines3 import SAC
 
 MODELS = {"a2c": A2C, "ddpg": DDPG, "td3": TD3, "sac": SAC, "ppo": PPO}
 
-MODEL_KWARGS = {x: config.__dict__[f"{x.upper()}_PARAMS"] for x in MODELS.keys()}
+MODEL_KWARGS = {x: config.__dict__[f"{x.upper()}_PARAMS"] for x in MODELS}
 
 NOISE = {
     "normal": NormalActionNoise,
@@ -103,7 +103,7 @@ class DRLAgent:
                 mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions)
             )
         print(model_kwargs)
-        model = MODELS[model_name](
+        return MODELS[model_name](
             policy=policy,
             env=self.env,
             tensorboard_log=f"{config.TENSORBOARD_LOG_DIR}/{model_name}",
@@ -111,7 +111,6 @@ class DRLAgent:
             policy_kwargs=policy_kwargs,
             **model_kwargs,
         )
-        return model
 
     def train_model(self, model, tb_log_name, total_timesteps=5000):
         model = model.learn(total_timesteps=total_timesteps, tb_log_name=tb_log_name)

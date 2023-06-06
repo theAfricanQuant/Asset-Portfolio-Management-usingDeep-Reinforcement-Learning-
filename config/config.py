@@ -23,10 +23,10 @@ TESTING_DATA_FILE = "test.csv"
 
 # now = datetime.datetime.now()
 # TRAINED_MODEL_DIR = f"trained_models/{now}"
-DATA_SAVE_DIR = f"datasets"
-TRAINED_MODEL_DIR = f"trained_models"
-TENSORBOARD_LOG_DIR = f"tensorboard_log"
-RESULTS_DIR = f"results"
+DATA_SAVE_DIR = "datasets"
+TRAINED_MODEL_DIR = "trained_models"
+TENSORBOARD_LOG_DIR = "tensorboard_log"
+RESULTS_DIR = "results"
 # os.makedirs(TRAINED_MODEL_DIR)
 
 

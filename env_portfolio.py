@@ -121,23 +121,23 @@ class StockPortfolioEnv(gym.Env):
             plt.plot(df.daily_return.cumsum(),'r')
             plt.savefig('results/cumulative_reward.png')
             plt.close()
-            
+
             plt.plot(self.portfolio_return_memory,'r')
             plt.savefig('results/rewards.png')
             plt.close()
 
             print("=================================")
-            print("begin_total_asset:{}".format(self.asset_memory[0]))           
-            print("end_total_asset:{}".format(self.portfolio_value))
+            print(f"begin_total_asset:{self.asset_memory[0]}")
+            print(f"end_total_asset:{self.portfolio_value}")
 
             df_daily_return = pd.DataFrame(self.portfolio_return_memory)
             df_daily_return.columns = ['daily_return']
             if df_daily_return['daily_return'].std() !=0:
               sharpe = (252**0.5)*df_daily_return['daily_return'].mean()/ \
-                       df_daily_return['daily_return'].std()
+                           df_daily_return['daily_return'].std()
               print("Sharpe: ",sharpe)
             print("=================================")
-            
+
             return self.state, self.reward, self.terminal,{}
 
         else:
@@ -147,15 +147,15 @@ class StockPortfolioEnv(gym.Env):
             #if (np.array(actions) - np.array(actions).min()).sum() != 0:
             #  norm_actions = (np.array(actions) - np.array(actions).min()) / (np.array(actions) - np.array(actions).min()).sum()
             #else:
-            
-      
+
+
             #  norm_actions = actions
             weights = self.softmax_normalization(actions) 
             #print("Normalized actions: ", weights)
             self.actions_memory.append(weights)
             last_day_memory = self.data
-            
-            
+
+
             """
             # Get data frame of close prices 
             # Reset the Index to tic and date
@@ -228,17 +228,13 @@ class StockPortfolioEnv(gym.Env):
     def softmax_normalization(self, actions):
         numerator = np.exp(actions)
         denominator = np.sum(np.exp(actions))
-        softmax_output = numerator/denominator
-        return softmax_output
+        return numerator/denominator
 
     
     def save_asset_memory(self):
         date_list = self.date_memory
         portfolio_return = self.portfolio_return_memory
-        #print(len(date_list))
-        #print(len(asset_list))
-        df_account_value = pd.DataFrame({'date':date_list,'daily_return':portfolio_return})
-        return df_account_value
+        return pd.DataFrame({'date':date_list,'daily_return':portfolio_return})
 
     def save_action_memory(self):
         # date and close price length must match actions length
@@ -258,22 +254,20 @@ class StockPortfolioEnv(gym.Env):
         # Reset the Index to tic and date
         df_prices = data_frame.copy()
         df_prices = df_prices.reset_index().set_index(['tic', 'date']).sort_index()
-        tic_list = list(set([i for i,j in df_prices.index]))
-        
+        tic_list = list({i for i,j in df_prices.index})
+
         # Get all the Close Prices
         df_close = pd.DataFrame()
         for ticker in tic_list:
             series = df_prices.xs(ticker).close
             df_close[ticker] = series
-            
+
         mu = expected_returns.mean_historical_return(df_close)
         Sigma = risk_models.sample_cov(df_close)
         ef = EfficientFrontier(mu,Sigma, weight_bounds=(0.01, 1))
-        
+
         raw_weights = ef.max_sharpe()
-        initial_weights = [j for i,j in raw_weights.items()]
-        
-        return initial_weights
+        return [j for i,j in raw_weights.items()]
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)

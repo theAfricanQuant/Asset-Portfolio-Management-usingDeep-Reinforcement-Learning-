@@ -76,8 +76,7 @@ def backtest_strat(df):
     strategy_ret.set_index("date", drop=False, inplace=True)
     strategy_ret.index = strategy_ret.index.tz_localize("UTC")
     del strategy_ret["date"]
-    ts = pd.Series(strategy_ret["daily_return"].values, index=strategy_ret.index)
-    return ts
+    return pd.Series(strategy_ret["daily_return"].values, index=strategy_ret.index)
 
 
 def baseline_strat(ticker, start, end):
